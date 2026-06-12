@@ -490,6 +490,86 @@
         .adv-badge.sf { background: #ef6c00; }
         .adv-badge.final { background: #ffd700; color: #000; }
         .adv-badge.winner { background: #ffd700; color: #000; }
+
+        .auto-update-bar {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 20px;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+            flex-wrap: wrap;
+        }
+
+        #update-status {
+            color: #888;
+            font-size: 0.9em;
+        }
+
+        #update-status.updating {
+            color: #e94560;
+        }
+
+        #update-status.success {
+            color: #4caf50;
+        }
+
+        #update-status.error {
+            color: #f44336;
+        }
+
+        .auto-toggle {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            color: #888;
+        }
+
+        .auto-toggle input {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+        }
+
+        .live-indicator {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            background: #4caf50;
+            border-radius: 50%;
+            margin-right: 8px;
+            animation: blink 1s infinite;
+        }
+
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.3; }
+        }
+
+        .match-status {
+            font-size: 0.75em;
+            padding: 2px 8px;
+            border-radius: 4px;
+            margin-left: 10px;
+        }
+
+        .match-status.live {
+            background: #e94560;
+            color: #fff;
+        }
+
+        .match-status.ft {
+            background: #4caf50;
+            color: #fff;
+        }
+
+        .match-status.ht {
+            background: #ff9800;
+            color: #fff;
+        }
     </style>
 </head>
 <body>
@@ -497,6 +577,14 @@
         <header>
             <h1>⚽ 2026 World Cup Fantasy Pool ⚽</h1>
             <p>Track your teams and compete for glory!</p>
+            <div class="auto-update-bar">
+                <span id="update-status">Last updated: Never</span>
+                <button id="refresh-btn" class="btn btn-primary" onclick="fetchLiveScores()">🔄 Refresh Scores</button>
+                <label class="auto-toggle">
+                    <input type="checkbox" id="auto-update-toggle" onchange="toggleAutoUpdate()">
+                    <span>Auto-update</span>
+                </label>
+            </div>
         </header>
 
         <div class="tabs">
@@ -1321,6 +1409,237 @@
                 showAdvancementModal(teamName);
             }
         });
+
+        // ==================== LIVE SCORES API ====================
+
+        // Team name mapping from API to our names
+        const TEAM_NAME_MAP = {
+            'Mexico': 'Mexico',
+            'South Africa': 'South Africa',
+            'Korea Republic': 'South Korea',
+            'South Korea': 'South Korea',
+            'Czech Republic': 'Czechia',
+            'Czechia': 'Czechia',
+            'Canada': 'Canada',
+            'Bosnia And Herzegovina': 'Bosnia & Herzegovina',
+            'Bosnia and Herzegovina': 'Bosnia & Herzegovina',
+            'Bosnia-Herzegovina': 'Bosnia & Herzegovina',
+            'Qatar': 'Qatar',
+            'Switzerland': 'Switzerland',
+            'Brazil': 'Brazil',
+            'Morocco': 'Morocco',
+            'Haiti': 'Haiti',
+            'Scotland': 'Scotland',
+            'USA': 'United States',
+            'United States': 'United States',
+            'Paraguay': 'Paraguay',
+            'Australia': 'Australia',
+            'Turkey': 'Türkiye',
+            'Türkiye': 'Türkiye',
+            'Turkiye': 'Türkiye',
+            'Germany': 'Germany',
+            'Curacao': 'Curaçao',
+            'Curaçao': 'Curaçao',
+            'Ivory Coast': 'Côte d\'Ivoire',
+            'Côte d\'Ivoire': 'Côte d\'Ivoire',
+            'Cote D\'Ivoire': 'Côte d\'Ivoire',
+            'Ecuador': 'Ecuador',
+            'Netherlands': 'Netherlands',
+            'Japan': 'Japan',
+            'Sweden': 'Sweden',
+            'Tunisia': 'Tunisia',
+            'Belgium': 'Belgium',
+            'Egypt': 'Egypt',
+            'Iran': 'Iran',
+            'New Zealand': 'New Zealand',
+            'Spain': 'Spain',
+            'Cape Verde': 'Cape Verde',
+            'Cabo Verde': 'Cape Verde',
+            'Saudi Arabia': 'Saudi Arabia',
+            'Uruguay': 'Uruguay',
+            'France': 'France',
+            'Senegal': 'Senegal',
+            'Iraq': 'Iraq',
+            'Norway': 'Norway',
+            'Argentina': 'Argentina',
+            'Algeria': 'Algeria',
+            'Austria': 'Austria',
+            'Jordan': 'Jordan',
+            'Portugal': 'Portugal',
+            'DR Congo': 'DR Congo',
+            'Congo DR': 'DR Congo',
+            'Democratic Republic of Congo': 'DR Congo',
+            'Uzbekistan': 'Uzbekistan',
+            'Colombia': 'Colombia',
+            'England': 'England',
+            'Croatia': 'Croatia',
+            'Ghana': 'Ghana',
+            'Panama': 'Panama'
+        };
+
+        let autoUpdateInterval = null;
+        let apiKey = localStorage.getItem('footballApiKey') || '';
+
+        function normalizeTeamName(name) {
+            return TEAM_NAME_MAP[name] || name;
+        }
+
+        function updateStatus(message, className = '') {
+            const status = document.getElementById('update-status');
+            status.textContent = message;
+            status.className = className;
+        }
+
+        async function fetchLiveScores() {
+            updateStatus('Fetching scores...', 'updating');
+
+            try {
+                // Try the free football API
+                const response = await fetch('https://api.football-data.org/v4/competitions/WC/matches?status=FINISHED,IN_PLAY,PAUSED', {
+                    headers: {
+                        'X-Auth-Token': 'demo' // Free tier token
+                    }
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    processApiMatches(data.matches || []);
+                    return;
+                }
+            } catch (e) {
+                console.log('Football-data.org API failed, trying backup...');
+            }
+
+            // Backup: Try fetching from a free sports API via CORS proxy
+            try {
+                const today = new Date();
+                const dateStr = today.toISOString().split('T')[0];
+
+                // Using free ESPN API endpoints (unofficial but works)
+                const response = await fetch(`https://site.api.espn.com/apis/site/v2/sports/soccer/fifa.world/scoreboard`);
+
+                if (response.ok) {
+                    const data = await response.json();
+                    processEspnMatches(data.events || []);
+                    return;
+                }
+            } catch (e) {
+                console.log('ESPN API failed:', e);
+            }
+
+            updateStatus('Auto-update unavailable. Enter scores manually.', 'error');
+        }
+
+        function processApiMatches(apiMatches) {
+            let updatedCount = 0;
+
+            apiMatches.forEach(apiMatch => {
+                const homeTeam = normalizeTeamName(apiMatch.homeTeam?.name || apiMatch.homeTeam?.shortName);
+                const awayTeam = normalizeTeamName(apiMatch.awayTeam?.name || apiMatch.awayTeam?.shortName);
+
+                const match = MATCHES.find(m =>
+                    m.home === homeTeam && m.away === awayTeam
+                );
+
+                if (match && apiMatch.score?.fullTime) {
+                    const homeScore = apiMatch.score.fullTime.home;
+                    const awayScore = apiMatch.score.fullTime.away;
+
+                    if (homeScore !== null && awayScore !== null) {
+                        if (match.homeScore !== homeScore || match.awayScore !== awayScore) {
+                            match.homeScore = homeScore;
+                            match.awayScore = awayScore;
+                            match.completed = apiMatch.status === 'FINISHED';
+                            match.liveStatus = apiMatch.status;
+                            updatedCount++;
+                        }
+                    }
+                }
+            });
+
+            if (updatedCount > 0) {
+                saveData();
+                renderMatches(currentFilter);
+                renderStandings();
+                renderRosters();
+            }
+
+            const now = new Date().toLocaleTimeString();
+            updateStatus(`Last updated: ${now} (${updatedCount} matches updated)`, 'success');
+        }
+
+        function processEspnMatches(events) {
+            let updatedCount = 0;
+
+            events.forEach(event => {
+                if (!event.competitions || !event.competitions[0]) return;
+
+                const competition = event.competitions[0];
+                const competitors = competition.competitors || [];
+
+                if (competitors.length !== 2) return;
+
+                const homeComp = competitors.find(c => c.homeAway === 'home');
+                const awayComp = competitors.find(c => c.homeAway === 'away');
+
+                if (!homeComp || !awayComp) return;
+
+                const homeTeam = normalizeTeamName(homeComp.team?.displayName || homeComp.team?.name);
+                const awayTeam = normalizeTeamName(awayComp.team?.displayName || awayComp.team?.name);
+
+                const match = MATCHES.find(m =>
+                    m.home === homeTeam && m.away === awayTeam
+                );
+
+                if (match) {
+                    const homeScore = parseInt(homeComp.score);
+                    const awayScore = parseInt(awayComp.score);
+                    const status = competition.status?.type?.name;
+
+                    if (!isNaN(homeScore) && !isNaN(awayScore)) {
+                        if (match.homeScore !== homeScore || match.awayScore !== awayScore || match.liveStatus !== status) {
+                            match.homeScore = homeScore;
+                            match.awayScore = awayScore;
+                            match.completed = status === 'STATUS_FINAL';
+                            match.liveStatus = status;
+                            updatedCount++;
+                        }
+                    }
+                }
+            });
+
+            if (updatedCount > 0) {
+                saveData();
+                renderMatches(currentFilter);
+                renderStandings();
+                renderRosters();
+            }
+
+            const now = new Date().toLocaleTimeString();
+            updateStatus(`Last updated: ${now} (${updatedCount} matches updated)`, 'success');
+        }
+
+        function toggleAutoUpdate() {
+            const toggle = document.getElementById('auto-update-toggle');
+
+            if (toggle.checked) {
+                // Start auto-update every 2 minutes
+                fetchLiveScores();
+                autoUpdateInterval = setInterval(fetchLiveScores, 120000);
+                updateStatus('Auto-update enabled (every 2 min)', 'success');
+            } else {
+                if (autoUpdateInterval) {
+                    clearInterval(autoUpdateInterval);
+                    autoUpdateInterval = null;
+                }
+                updateStatus('Auto-update disabled', '');
+            }
+        }
+
+        // Initial fetch on page load
+        setTimeout(() => {
+            fetchLiveScores();
+        }, 1000);
     </script>
 </body>
 </html>
