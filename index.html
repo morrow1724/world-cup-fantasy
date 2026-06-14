@@ -1623,10 +1623,10 @@
             const toggle = document.getElementById('auto-update-toggle');
 
             if (toggle.checked) {
-                // Start auto-update every 2 minutes
+                // Start auto-update every 60 seconds for live matches
                 fetchLiveScores();
-                autoUpdateInterval = setInterval(fetchLiveScores, 120000);
-                updateStatus('Auto-update enabled (every 2 min)', 'success');
+                autoUpdateInterval = setInterval(fetchLiveScores, 60000);
+                updateStatus('Auto-update enabled (every 60 sec)', 'success');
             } else {
                 if (autoUpdateInterval) {
                     clearInterval(autoUpdateInterval);
@@ -1636,9 +1636,17 @@
             }
         }
 
-        // Initial fetch on page load
+        // Initial fetch on page load and enable auto-update by default
         setTimeout(() => {
-            fetchLiveScores();
+            const toggle = document.getElementById('auto-update-toggle');
+            if (toggle) {
+                toggle.checked = true;
+                toggleAutoUpdate();
+            } else {
+                fetchLiveScores();
+                // Start auto-refresh every 60 seconds
+                autoUpdateInterval = setInterval(fetchLiveScores, 60000);
+            }
         }, 1000);
     </script>
 </body>
