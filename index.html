@@ -602,11 +602,13 @@
                         <th>Rank</th>
                         <th>Owner</th>
                         <th>Teams</th>
+                        <th title="Games Played">GP</th>
+                        <th title="Wins">W</th>
+                        <th title="Draws">D</th>
+                        <th title="Losses">L</th>
                         <th title="Goals Scored">⚽ Goals</th>
-                        <th title="Match Wins">🏆 Wins</th>
-                        <th title="Draws">🤝 Draws</th>
                         <th title="Clean Sheets">🧤 CS</th>
-                        <th title="Advancement Bonuses">📈 Adv</th>
+                        <th title="Advancement Points">📈 Adv</th>
                         <th class="total">Total</th>
                     </tr>
                 </thead>
@@ -987,6 +989,7 @@
                 goals: 0,
                 wins: 0,
                 draws: 0,
+                losses: 0,
                 cleanSheets: 0,
                 matchesPlayed: 0
             };
@@ -1010,6 +1013,8 @@
                     stats.wins++;
                 } else if (teamGoals === opponentGoals) {
                     stats.draws++;
+                } else {
+                    stats.losses++;
                 }
 
                 if (opponentGoals === 0) {
@@ -1038,8 +1043,10 @@
             const owner = OWNERS[ownerId];
             const stats = {
                 goals: 0,
+                gamesPlayed: 0,
                 wins: 0,
                 draws: 0,
+                losses: 0,
                 cleanSheets: 0,
                 advancementPoints: 0,
                 teamsFromGroups: 0,
@@ -1053,8 +1060,10 @@
             owner.teams.forEach(team => {
                 const teamStats = calculateTeamStats(team);
                 stats.goals += teamStats.goals;
+                stats.gamesPlayed += teamStats.matchesPlayed;
                 stats.wins += teamStats.wins;
                 stats.draws += teamStats.draws;
+                stats.losses += teamStats.losses;
                 stats.cleanSheets += teamStats.cleanSheets;
                 stats.advancementPoints += calculateAdvancementPoints(team);
                 stats.teamStats[team] = teamStats;
@@ -1152,10 +1161,12 @@
                         <td class="rank ${rankClass}">${index + 1}</td>
                         <td class="owner-name">${owner.name}</td>
                         <td><div class="owner-teams">${teamsHtml}</div></td>
-                        <td>${owner.stats.goalPoints}</td>
-                        <td>${owner.stats.winPoints}</td>
-                        <td>${owner.stats.drawPoints}</td>
-                        <td>${owner.stats.cleanSheetPoints}</td>
+                        <td>${owner.stats.gamesPlayed}</td>
+                        <td>${owner.stats.wins}</td>
+                        <td>${owner.stats.draws}</td>
+                        <td>${owner.stats.losses}</td>
+                        <td>${owner.stats.goals}</td>
+                        <td>${owner.stats.cleanSheets}</td>
                         <td>${owner.stats.advancementPoints}</td>
                         <td class="total">${owner.stats.total}</td>
                     </tr>
