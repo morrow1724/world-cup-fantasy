@@ -76,13 +76,20 @@
         }
 
         /* Standings Table */
+        .table-scroll {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            border-radius: 12px;
+            margin-bottom: 30px;
+        }
+
         .standings-table {
             width: 100%;
+            min-width: 720px;
             border-collapse: collapse;
             background: rgba(255, 255, 255, 0.05);
             border-radius: 12px;
             overflow: hidden;
-            margin-bottom: 30px;
         }
 
         .standings-table th,
@@ -596,6 +603,7 @@
 
         <div id="standings" class="tab-content active">
             <div class="stats-summary" id="stats-summary"></div>
+            <div class="table-scroll">
             <table class="standings-table">
                 <thead>
                     <tr>
@@ -614,6 +622,7 @@
                 </thead>
                 <tbody id="standings-body"></tbody>
             </table>
+            </div>
         </div>
 
         <div id="matches" class="tab-content">
