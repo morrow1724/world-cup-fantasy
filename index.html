@@ -1739,18 +1739,10 @@
             }
         }
 
-        // Initial fetch on page load and enable auto-update by default
-        setTimeout(() => {
-            const toggle = document.getElementById('auto-update-toggle');
-            if (toggle) {
-                toggle.checked = true;
-                toggleAutoUpdate();
-            } else {
-                fetchLiveScores();
-                // Start auto-refresh every 60 seconds
-                autoUpdateInterval = setInterval(fetchLiveScores, 60000);
-            }
-        }, 1000);
+        // Auto-update is OFF by default to protect shared scores: the live-score
+        // API is unofficial/unreliable, and a bad result would overwrite correct
+        // manual scores for everyone. Use the "🔄 Refresh Scores" button to pull
+        // live scores on demand, or tick "Auto-update" to opt into polling.
     </script>
 </body>
 </html>
