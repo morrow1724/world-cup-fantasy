@@ -584,6 +584,7 @@
                     <input type="checkbox" id="auto-update-toggle" onchange="toggleAutoUpdate()">
                     <span>Auto-update</span>
                 </label>
+                <button id="reset-btn" class="btn btn-secondary" onclick="resetAllScores()">🗑️ Reset All</button>
             </div>
         </header>
 
@@ -1361,6 +1362,36 @@
             match.homeScore = null;
             match.awayScore = null;
             match.completed = false;
+
+            saveData();
+            renderMatches(currentFilter);
+            renderStandings();
+            renderRosters();
+        }
+
+        function resetAllScores() {
+            // Destructive + shared: this wipes scores for EVERYONE via Firebase.
+            if (!confirm('⚠️ Reset ALL scores and advancements for EVERYONE in the pool?\n\nThis clears every match result and team advancement and cannot be undone.')) return;
+            if (!confirm('Are you absolutely sure? This affects all owners, not just you.')) return;
+
+            MATCHES.forEach(m => {
+                m.homeScore = null;
+                m.awayScore = null;
+                m.completed = false;
+                m.penalties = null;
+                m.liveStatus = null;
+            });
+
+            Object.keys(teamAdvancements).forEach(team => {
+                teamAdvancements[team] = {
+                    advancedFromGroups: false,
+                    advancedToQF: false,
+                    advancedToSF: false,
+                    advancedToFinal: false,
+                    wonWorldCup: false,
+                    eliminated: false
+                };
+            });
 
             saveData();
             renderMatches(currentFilter);
