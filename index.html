@@ -681,7 +681,34 @@
 
     <div class="save-indicator" id="save-indicator">✓ Saved!</div>
 
+    <!-- Firebase (Realtime Database) for shared, real-time standings -->
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-database-compat.js"></script>
+
     <script>
+        // ==================== FIREBASE CONFIG ====================
+        // To make scores shared across everyone in real-time:
+        //   1. Go to https://console.firebase.google.com  ->  Add project (any name)
+        //   2. In the project: Build -> Realtime Database -> Create Database -> Start in TEST mode
+        //   3. Project settings (gear icon) -> Your apps -> Web app (</>) -> register an app
+        //   4. Paste the config values it gives you below (the databaseURL is the important one).
+        // Until real values are filled in, the app falls back to per-browser localStorage.
+        const firebaseConfig = {
+            apiKey: "YOUR_API_KEY",
+            authDomain: "YOUR_PROJECT.firebaseapp.com",
+            databaseURL: "https://YOUR_PROJECT-default-rtdb.firebaseio.com",
+            projectId: "YOUR_PROJECT",
+            appId: "YOUR_APP_ID"
+        };
+
+        const DB_PATH = 'worldCupFantasy2026';
+        const FIREBASE_ENABLED = !!firebaseConfig.databaseURL && !firebaseConfig.databaseURL.includes('YOUR_');
+        let db = null;
+        if (FIREBASE_ENABLED) {
+            firebase.initializeApp(firebaseConfig);
+            db = firebase.database();
+        }
+
         // ==================== DATA ====================
 
         const OWNERS = {
@@ -756,18 +783,18 @@
             { id: 2, date: '2026-06-11', time: '20:00', group: 'A', home: 'South Korea', away: 'Czechia', venue: 'Estadio Akron, Guadalajara', homeScore: 2, awayScore: 1, completed: true },
 
             // June 12 - Day 2
-            { id: 3, date: '2026-06-12', time: '15:00', group: 'B', home: 'Canada', away: 'Bosnia & Herzegovina', venue: 'BMO Field, Toronto', homeScore: null, awayScore: null, completed: false },
-            { id: 4, date: '2026-06-12', time: '21:00', group: 'D', home: 'United States', away: 'Paraguay', venue: 'SoFi Stadium, Los Angeles', homeScore: null, awayScore: null, completed: false },
+            { id: 3, date: '2026-06-12', time: '15:00', group: 'B', home: 'Canada', away: 'Bosnia & Herzegovina', venue: 'BMO Field, Toronto', homeScore: 1, awayScore: 1, completed: true },
+            { id: 4, date: '2026-06-12', time: '21:00', group: 'D', home: 'United States', away: 'Paraguay', venue: 'SoFi Stadium, Los Angeles', homeScore: 4, awayScore: 1, completed: true },
 
             // June 13 - Day 3
-            { id: 5, date: '2026-06-13', time: '15:00', group: 'B', home: 'Qatar', away: 'Switzerland', venue: 'Levi\'s Stadium, Santa Clara', homeScore: null, awayScore: null, completed: false },
-            { id: 6, date: '2026-06-13', time: '18:00', group: 'C', home: 'Brazil', away: 'Morocco', venue: 'MetLife Stadium, East Rutherford', homeScore: null, awayScore: null, completed: false },
-            { id: 7, date: '2026-06-13', time: '21:00', group: 'C', home: 'Haiti', away: 'Scotland', venue: 'Gillette Stadium, Foxborough', homeScore: null, awayScore: null, completed: false },
-            { id: 8, date: '2026-06-13', time: '22:00', group: 'D', home: 'Australia', away: 'Türkiye', venue: 'BC Place, Vancouver', homeScore: null, awayScore: null, completed: false },
+            { id: 5, date: '2026-06-13', time: '15:00', group: 'B', home: 'Qatar', away: 'Switzerland', venue: 'Levi\'s Stadium, Santa Clara', homeScore: 1, awayScore: 1, completed: true },
+            { id: 6, date: '2026-06-13', time: '18:00', group: 'C', home: 'Brazil', away: 'Morocco', venue: 'MetLife Stadium, East Rutherford', homeScore: 1, awayScore: 1, completed: true },
+            { id: 7, date: '2026-06-13', time: '21:00', group: 'C', home: 'Haiti', away: 'Scotland', venue: 'Gillette Stadium, Foxborough', homeScore: 0, awayScore: 1, completed: true },
+            { id: 8, date: '2026-06-13', time: '22:00', group: 'D', home: 'Australia', away: 'Türkiye', venue: 'BC Place, Vancouver', homeScore: 2, awayScore: 0, completed: true },
 
             // June 14 - Day 4
-            { id: 9, date: '2026-06-14', time: '13:00', group: 'E', home: 'Germany', away: 'Curaçao', venue: 'NRG Stadium, Houston', homeScore: null, awayScore: null, completed: false },
-            { id: 10, date: '2026-06-14', time: '16:00', group: 'F', home: 'Netherlands', away: 'Japan', venue: 'AT&T Stadium, Arlington', homeScore: null, awayScore: null, completed: false },
+            { id: 9, date: '2026-06-14', time: '13:00', group: 'E', home: 'Germany', away: 'Curaçao', venue: 'NRG Stadium, Houston', homeScore: 7, awayScore: 1, completed: true },
+            { id: 10, date: '2026-06-14', time: '16:00', group: 'F', home: 'Netherlands', away: 'Japan', venue: 'AT&T Stadium, Arlington', homeScore: 2, awayScore: 1, completed: true },
             { id: 11, date: '2026-06-14', time: '20:00', group: 'E', home: 'Côte d\'Ivoire', away: 'Ecuador', venue: 'Lincoln Financial Field, Philadelphia', homeScore: null, awayScore: null, completed: false },
             { id: 12, date: '2026-06-14', time: '21:00', group: 'F', home: 'Sweden', away: 'Tunisia', venue: 'Estadio BBVA, Monterrey', homeScore: null, awayScore: null, completed: false },
 
@@ -875,34 +902,73 @@
 
         // ==================== STORAGE ====================
 
+        // Build a Firebase-safe snapshot of the current state.
+        // (Realtime Database rejects `undefined`, so coerce everything to a value or null.)
+        function buildStatePayload() {
+            const matchesObj = {};
+            MATCHES.forEach(m => {
+                matchesObj[m.id] = {
+                    homeScore: m.homeScore ?? null,
+                    awayScore: m.awayScore ?? null,
+                    completed: !!m.completed,
+                    penalties: m.penalties ?? null,
+                    liveStatus: m.liveStatus ?? null
+                };
+            });
+            return { matches: matchesObj, teamAdvancements: teamAdvancements };
+        }
+
+        // Apply a stored snapshot onto the in-memory MATCHES + advancements.
+        // Handles both the Firebase shape (object keyed by id) and the older
+        // localStorage shape (array of match objects).
+        function applyState(data) {
+            if (!data) return;
+            if (data.matches) {
+                Object.entries(data.matches).forEach(([key, saved]) => {
+                    const id = saved.id != null ? saved.id : Number(key);
+                    const match = MATCHES.find(m => m.id === id);
+                    if (match) {
+                        match.homeScore = saved.homeScore ?? null;
+                        match.awayScore = saved.awayScore ?? null;
+                        match.completed = !!saved.completed;
+                        match.penalties = saved.penalties ?? null;
+                        match.liveStatus = saved.liveStatus ?? null;
+                    }
+                });
+            }
+            if (data.teamAdvancements) {
+                teamAdvancements = data.teamAdvancements;
+            }
+        }
+
         function saveData() {
-            const data = {
-                matches: MATCHES,
-                teamAdvancements: teamAdvancements
-            };
-            localStorage.setItem('worldCupFantasy2026', JSON.stringify(data));
+            if (FIREBASE_ENABLED && db) {
+                db.ref(DB_PATH).set(buildStatePayload());
+            } else {
+                localStorage.setItem(DB_PATH, JSON.stringify({ matches: MATCHES, teamAdvancements }));
+            }
             showSaveIndicator();
         }
 
         function loadData() {
-            const saved = localStorage.getItem('worldCupFantasy2026');
-            if (saved) {
-                const data = JSON.parse(saved);
-                // Update matches with saved scores
-                data.matches.forEach(savedMatch => {
-                    const match = MATCHES.find(m => m.id === savedMatch.id);
-                    if (match) {
-                        match.homeScore = savedMatch.homeScore;
-                        match.awayScore = savedMatch.awayScore;
-                        match.completed = savedMatch.completed;
-                        match.penalties = savedMatch.penalties;
-                    }
-                });
-                // Update team advancements
-                if (data.teamAdvancements) {
-                    teamAdvancements = data.teamAdvancements;
+            const saved = localStorage.getItem(DB_PATH);
+            if (saved) applyState(JSON.parse(saved));
+        }
+
+        // Real-time subscription: re-renders this browser whenever ANYONE changes a score.
+        // On a brand-new (empty) database, seeds it from the current defaults.
+        function subscribeToData() {
+            db.ref(DB_PATH).on('value', snapshot => {
+                const data = snapshot.val();
+                if (!data || !data.matches) {
+                    db.ref(DB_PATH).set(buildStatePayload());
+                    return;
                 }
-            }
+                applyState(data);
+                renderStandings();
+                renderMatches(currentFilter);
+                renderRosters();
+            });
         }
 
         function showSaveIndicator() {
@@ -1344,7 +1410,11 @@
         });
 
         // Load saved data and render
-        loadData();
+        if (FIREBASE_ENABLED) {
+            subscribeToData();   // live: renders now and on every remote change
+        } else {
+            loadData();          // fallback: per-browser localStorage
+        }
         renderStandings();
         renderMatches();
         renderRosters();
@@ -1623,10 +1693,10 @@
             const toggle = document.getElementById('auto-update-toggle');
 
             if (toggle.checked) {
-                // Start auto-update every 2 minutes
+                // Start auto-update every 60 seconds for live matches
                 fetchLiveScores();
-                autoUpdateInterval = setInterval(fetchLiveScores, 120000);
-                updateStatus('Auto-update enabled (every 2 min)', 'success');
+                autoUpdateInterval = setInterval(fetchLiveScores, 60000);
+                updateStatus('Auto-update enabled (every 60 sec)', 'success');
             } else {
                 if (autoUpdateInterval) {
                     clearInterval(autoUpdateInterval);
@@ -1636,11 +1706,19 @@
             }
         }
 
-        // Initial fetch on page load
+        // Initial fetch on page load and enable auto-update by default
         setTimeout(() => {
-            fetchLiveScores();
+            const toggle = document.getElementById('auto-update-toggle');
+            if (toggle) {
+                toggle.checked = true;
+                toggleAutoUpdate();
+            } else {
+                fetchLiveScores();
+                // Start auto-refresh every 60 seconds
+                autoUpdateInterval = setInterval(fetchLiveScores, 60000);
+            }
         }, 1000);
     </script>
 </body>
 </html>
-
+<!-- deployed Sun Jun 14 17:47:45 EDT 2026 -->
