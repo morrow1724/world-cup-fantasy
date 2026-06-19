@@ -146,12 +146,70 @@
             padding: 3px 8px;
             border-radius: 4px;
             font-size: 0.8em;
+            cursor: pointer;
+        }
+
+        .team-badge:hover {
+            background: rgba(233, 69, 96, 0.35);
         }
 
         .team-badge.eliminated {
             opacity: 0.4;
             text-decoration: line-through;
         }
+
+        /* Team schedule tooltip */
+        #team-tooltip {
+            position: fixed;
+            z-index: 2000;
+            display: none;
+            max-width: 280px;
+            padding: 10px 12px;
+            background: #16213e;
+            border: 1px solid #e94560;
+            border-radius: 8px;
+            font-size: 0.8em;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+            pointer-events: none;
+        }
+
+        #team-tooltip.show { display: block; }
+
+        #team-tooltip .tt-title {
+            font-weight: bold;
+            margin-bottom: 6px;
+            padding-bottom: 6px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+        }
+
+        #team-tooltip .tt-section {
+            color: #888;
+            text-transform: uppercase;
+            font-size: 0.8em;
+            letter-spacing: 0.5px;
+            margin: 8px 0 3px;
+        }
+
+        #team-tooltip .tt-row {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 2px 0;
+            white-space: nowrap;
+        }
+
+        #team-tooltip .tt-score { margin-left: auto; font-weight: bold; }
+        #team-tooltip .tt-res {
+            display: inline-block;
+            width: 15px;
+            text-align: center;
+            font-weight: bold;
+        }
+        #team-tooltip .tt-W { color: #4caf50; }
+        #team-tooltip .tt-D { color: #ff9800; }
+        #team-tooltip .tt-L { color: #f44336; }
+        #team-tooltip .tt-upcoming { color: #aaa; }
+        #team-tooltip .tt-when { color: #e94560; margin-left: auto; padding-left: 10px; }
 
         /* Matches Section */
         .matches-grid {
@@ -1162,7 +1220,7 @@
                 const teamsHtml = owner.teams.map(team => {
                     const adv = teamAdvancements[team];
                     const eliminated = adv && adv.eliminated;
-                    return `<span class="team-badge ${eliminated ? 'eliminated' : ''}">${TEAM_FLAGS[team] || '🏳️'} ${team}</span>`;
+                    return `<span class="team-badge ${eliminated ? 'eliminated' : ''}" data-team="${team}">${TEAM_FLAGS[team] || '🏳️'} ${team}</span>`;
                 }).join('');
 
                 return `
@@ -1441,6 +1499,104 @@
         renderStandings();
         renderMatches();
         renderRosters();
+
+        // ==================== TEAM SCHEDULE TOOLTIP ====================
+        // Hover (or tap on mobile) a team in the standings to see its results
+        // so far and its upcoming fixtures.
+        const teamTooltip = document.createElement('div');
+        teamTooltip.id = 'team-tooltip';
+        document.body.appendChild(teamTooltip);
+
+        function buildTeamSchedule(team) {
+            const games = MATCHES
+                .filter(m => m.home === team || m.away === team)
+                .sort((a, b) => (a.date + a.time).localeCompare(b.date + b.time));
+            const played = games.filter(g => g.completed);
+            const upcoming = games.filter(g => !g.completed);
+
+            let html = `<div class="tt-title">${TEAM_FLAGS[team] || '🏳️'} ${team}</div>`;
+
+            if (played.length) {
+                html += `<div class="tt-section">Results</div>`;
+                played.forEach(g => {
+                    const isHome = g.home === team;
+                    const tf = isHome ? g.homeScore : g.awayScore;
+                    const oa = isHome ? g.awayScore : g.homeScore;
+                    const opp = isHome ? g.away : g.home;
+                    const res = tf > oa ? 'W' : (tf === oa ? 'D' : 'L');
+                    html += `<div class="tt-row">`
+                        + `<span class="tt-res tt-${res}">${res}</span>`
+                        + `<span>${isHome ? 'vs' : '@'} ${TEAM_FLAGS[opp] || ''} ${opp}</span>`
+                        + `<span class="tt-score">${tf}–${oa}</span></div>`;
+                });
+            }
+
+            if (upcoming.length) {
+                html += `<div class="tt-section">Upcoming</div>`;
+                upcoming.forEach(g => {
+                    const isHome = g.home === team;
+                    const opp = isHome ? g.away : g.home;
+                    const when = new Date(g.date + 'T12:00:00')
+                        .toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+                    html += `<div class="tt-row tt-upcoming">`
+                        + `<span>${isHome ? 'vs' : '@'} ${TEAM_FLAGS[opp] || ''} ${opp}</span>`
+                        + `<span class="tt-when">${when} ${g.time}</span></div>`;
+                });
+            }
+
+            if (!played.length && !upcoming.length) {
+                html += `<div class="tt-row">No games scheduled</div>`;
+            }
+            return html;
+        }
+
+        function showTeamTip(team) {
+            if (teamTooltip.dataset.team !== team) {
+                teamTooltip.innerHTML = buildTeamSchedule(team);
+                teamTooltip.dataset.team = team;
+            }
+            teamTooltip.classList.add('show');
+        }
+
+        function placeTeamTip(x, y) {
+            const r = teamTooltip.getBoundingClientRect();
+            const pad = 14;
+            let left = x + pad;
+            let top = y + pad;
+            if (left + r.width > window.innerWidth - 8) left = x - r.width - pad;
+            if (top + r.height > window.innerHeight - 8) top = y - r.height - pad;
+            teamTooltip.style.left = Math.max(8, left) + 'px';
+            teamTooltip.style.top = Math.max(8, top) + 'px';
+        }
+
+        const standingsBody = document.getElementById('standings-body');
+
+        // Desktop: follow the cursor while over a badge, hide otherwise.
+        standingsBody.addEventListener('mousemove', (e) => {
+            const badge = e.target.closest('.team-badge');
+            if (badge && badge.dataset.team) {
+                showTeamTip(badge.dataset.team);
+                placeTeamTip(e.clientX, e.clientY);
+            } else {
+                teamTooltip.classList.remove('show');
+            }
+        });
+        standingsBody.addEventListener('mouseleave', () => teamTooltip.classList.remove('show'));
+
+        // Mobile: tap a badge to toggle; tap elsewhere to dismiss.
+        standingsBody.addEventListener('click', (e) => {
+            const badge = e.target.closest('.team-badge');
+            if (!badge || !badge.dataset.team) return;
+            e.stopPropagation();
+            if (teamTooltip.classList.contains('show') && teamTooltip.dataset.team === badge.dataset.team) {
+                teamTooltip.classList.remove('show');
+                return;
+            }
+            showTeamTip(badge.dataset.team);
+            const rect = badge.getBoundingClientRect();
+            placeTeamTip(rect.left, rect.bottom);
+        });
+        document.addEventListener('click', () => teamTooltip.classList.remove('show'));
 
         // Keyboard shortcut for saving
         document.addEventListener('keydown', (e) => {
