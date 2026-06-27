@@ -942,14 +942,14 @@
             // June 26 - Day 16
             { id: 61, date: '2026-06-26', time: '16:00', group: 'I', home: 'Norway', away: 'France', venue: 'Gillette Stadium, Foxborough', homeScore: null, awayScore: null, completed: false },
             { id: 62, date: '2026-06-26', time: '16:00', group: 'I', home: 'Senegal', away: 'Iraq', venue: 'BMO Field, Toronto', homeScore: null, awayScore: null, completed: false },
-            { id: 63, date: '2026-06-26', time: '20:00', group: 'G', home: 'Egypt', away: 'Belgium', venue: 'NRG Stadium, Houston', homeScore: null, awayScore: null, completed: false },
-            { id: 64, date: '2026-06-26', time: '20:00', group: 'G', home: 'New Zealand', away: 'Iran', venue: 'BC Place, Vancouver', homeScore: null, awayScore: null, completed: false },
-            { id: 65, date: '2026-06-26', time: '20:00', group: 'H', home: 'Cape Verde', away: 'Spain', venue: 'Mercedes-Benz Stadium, Atlanta', homeScore: null, awayScore: null, completed: false },
-            { id: 66, date: '2026-06-26', time: '20:00', group: 'H', home: 'Uruguay', away: 'Saudi Arabia', venue: 'Hard Rock Stadium, Miami', homeScore: null, awayScore: null, completed: false },
+            { id: 63, date: '2026-06-26', time: '20:00', group: 'G', home: 'New Zealand', away: 'Belgium', venue: 'NRG Stadium, Houston', homeScore: null, awayScore: null, completed: false },
+            { id: 64, date: '2026-06-26', time: '20:00', group: 'G', home: 'Egypt', away: 'Iran', venue: 'BC Place, Vancouver', homeScore: null, awayScore: null, completed: false },
+            { id: 65, date: '2026-06-26', time: '20:00', group: 'H', home: 'Uruguay', away: 'Spain', venue: 'Mercedes-Benz Stadium, Atlanta', homeScore: null, awayScore: null, completed: false },
+            { id: 66, date: '2026-06-26', time: '20:00', group: 'H', home: 'Cape Verde', away: 'Saudi Arabia', venue: 'Hard Rock Stadium, Miami', homeScore: null, awayScore: null, completed: false },
 
             // June 27 - Day 17 (Final group stage day)
-            { id: 67, date: '2026-06-27', time: '16:00', group: 'J', home: 'Algeria', away: 'Argentina', venue: 'AT&T Stadium, Arlington', homeScore: null, awayScore: null, completed: false },
-            { id: 68, date: '2026-06-27', time: '16:00', group: 'J', home: 'Jordan', away: 'Austria', venue: 'Levi\'s Stadium, Santa Clara', homeScore: null, awayScore: null, completed: false },
+            { id: 67, date: '2026-06-27', time: '16:00', group: 'J', home: 'Jordan', away: 'Argentina', venue: 'AT&T Stadium, Arlington', homeScore: null, awayScore: null, completed: false },
+            { id: 68, date: '2026-06-27', time: '16:00', group: 'J', home: 'Algeria', away: 'Austria', venue: 'Levi\'s Stadium, Santa Clara', homeScore: null, awayScore: null, completed: false },
             { id: 69, date: '2026-06-27', time: '20:00', group: 'L', home: 'Panama', away: 'England', venue: 'MetLife Stadium, East Rutherford', homeScore: null, awayScore: null, completed: false },
             { id: 70, date: '2026-06-27', time: '20:00', group: 'L', home: 'Croatia', away: 'Ghana', venue: 'Lincoln Financial Field, Philadelphia', homeScore: null, awayScore: null, completed: false },
             { id: 71, date: '2026-06-27', time: '22:30', group: 'K', home: 'Colombia', away: 'Portugal', venue: 'Hard Rock Stadium, Miami', homeScore: null, awayScore: null, completed: false },
@@ -1201,6 +1201,23 @@
 
         // ==================== RENDERING ====================
 
+        // Today's date (YYYY-MM-DD) in New York time, so the "TODAY" highlight and
+        // the Today filter follow Eastern time rather than the browser's UTC date.
+        function nyToday() {
+            return new Date().toLocaleDateString('en-CA', { timeZone: 'America/New_York' });
+        }
+
+        // Format a stored 24-hour time string ('20:00') as 12-hour with AM/PM ('8:00 PM').
+        function formatTime(t) {
+            if (!t) return '';
+            const [hStr, mStr] = t.split(':');
+            let h = parseInt(hStr, 10);
+            const ampm = h >= 12 ? 'PM' : 'AM';
+            h = h % 12;
+            if (h === 0) h = 12;
+            return `${h}:${mStr} ${ampm}`;
+        }
+
         function renderStandings() {
             const tbody = document.getElementById('standings-body');
 
@@ -1267,7 +1284,7 @@
 
         function renderMatches(filter = 'all') {
             const container = document.getElementById('matches-container');
-            const today = new Date().toISOString().split('T')[0];
+            const today = nyToday();
 
             let filteredMatches = [...MATCHES];
 
@@ -1316,7 +1333,7 @@
                         <div class="match-card ${statusClass}" data-match-id="${match.id}">
                             <div class="match-header">
                                 <span class="match-group">Group ${match.group}</span>
-                                <span class="match-time">${match.time} ET</span>
+                                <span class="match-time">${formatTime(match.time)} ET</span>
                             </div>
                             <div class="match-teams">
                                 <div class="match-team">
@@ -1540,7 +1557,7 @@
                         .toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
                     html += `<div class="tt-row tt-upcoming">`
                         + `<span>${isHome ? 'vs' : '@'} ${TEAM_FLAGS[opp] || ''} ${opp}</span>`
-                        + `<span class="tt-when">${when} ${g.time}</span></div>`;
+                        + `<span class="tt-when">${when} ${formatTime(g.time)}</span></div>`;
                 });
             }
 
