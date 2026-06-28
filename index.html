@@ -301,6 +301,21 @@
             border-color: #e94560;
         }
 
+        .match-score input:disabled {
+            opacity: 1;
+            -webkit-text-fill-color: #fff;
+            color: #fff;
+            cursor: default;
+            background: rgba(255, 255, 255, 0.06);
+        }
+
+        .match-locked {
+            margin-top: 15px;
+            text-align: center;
+            font-size: 0.8em;
+            color: #888;
+        }
+
         .match-venue {
             margin-top: 10px;
             font-size: 0.8em;
@@ -1742,11 +1757,11 @@
                                 <div class="match-score">
                                     <input type="number" min="0" max="20" value="${match.homeScore ?? ''}"
                                            data-match="${match.id}" data-side="home"
-                                           placeholder="-">
+                                           placeholder="-" disabled>
                                     <span>-</span>
                                     <input type="number" min="0" max="20" value="${match.awayScore ?? ''}"
                                            data-match="${match.id}" data-side="away"
-                                           placeholder="-">
+                                           placeholder="-" disabled>
                                 </div>
                                 <div class="match-team">
                                     <div class="flag">${TEAM_FLAGS[match.away] || '🏳️'}</div>
@@ -1754,12 +1769,7 @@
                                 </div>
                             </div>
                             <div class="match-venue">📍 ${match.venue}</div>
-                            <div class="match-actions">
-                                <button class="btn btn-primary" onclick="saveMatch(${match.id})">
-                                    ${match.completed ? 'Update' : 'Save Result'}
-                                </button>
-                                ${match.completed ? `<button class="btn btn-secondary" onclick="clearMatch(${match.id})">Clear</button>` : ''}
-                            </div>
+                            <div class="match-locked">🔒 Group stage complete — results locked</div>
                         </div>
                     `;
                 });
