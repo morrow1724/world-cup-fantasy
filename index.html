@@ -342,6 +342,157 @@
             background: rgba(255, 255, 255, 0.2);
         }
 
+        /* Bracket Section */
+        .bracket-help {
+            color: #aaa;
+            font-size: 0.9em;
+            margin-bottom: 20px;
+            line-height: 1.5;
+            background: rgba(255, 255, 255, 0.04);
+            border-left: 3px solid #0f3460;
+            padding: 12px 15px;
+            border-radius: 6px;
+        }
+
+        .bracket-champion {
+            text-align: center;
+            font-size: 1.4em;
+            font-weight: bold;
+            color: #ffd700;
+            background: rgba(255, 215, 0, 0.08);
+            border: 1px solid #ffd700;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 25px;
+        }
+
+        /* ---- Bracket tree ---- */
+        .bracket-scroll { overflow-x: auto; padding-bottom: 20px; -webkit-overflow-scrolling: touch; }
+        .bracket-tree {
+            display: flex;
+            min-width: 1180px;       /* R32..Final columns side by side */
+            align-items: stretch;
+        }
+        .round-col {
+            flex: 1 0 230px;
+            display: flex;
+            flex-direction: column;
+            padding: 0 12px;
+        }
+        .round-title {
+            text-align: center;
+            font-weight: bold;
+            color: #e94560;
+            font-size: 0.95em;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            padding-bottom: 12px;
+        }
+        .round-body { flex: 1; display: flex; flex-direction: column; }
+
+        .bm-wrap {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            position: relative;
+        }
+        /* Outgoing connector (elbow) on the right of every feeder match */
+        .round-col:not(.is-last) .bm-wrap::after {
+            content: '';
+            position: absolute;
+            left: 100%;
+            width: 12px;
+            border-right: 2px solid rgba(255,255,255,0.25);
+        }
+        .round-col:not(.is-last) .bm-wrap.top::after    { top: 50%; bottom: 0; border-top: 2px solid rgba(255,255,255,0.25); }
+        .round-col:not(.is-last) .bm-wrap.bottom::after { top: 0; bottom: 50%; border-bottom: 2px solid rgba(255,255,255,0.25); }
+        /* Incoming connector on the left of every fed match */
+        .round-col:not(.is-first) .bm-wrap::before {
+            content: '';
+            position: absolute;
+            left: -12px;
+            width: 12px;
+            top: 50%;
+            border-top: 2px solid rgba(255,255,255,0.25);
+        }
+
+        .bm {
+            width: 100%;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        .bm.completed { border-color: #4caf50; }
+        .bm.live { border-color: #e94560; }
+        .bm-meta {
+            font-size: 0.68em;
+            color: #888;
+            padding: 3px 8px;
+            background: rgba(255,255,255,0.04);
+            display: flex;
+            justify-content: space-between;
+        }
+        .bm-row {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 5px 8px;
+        }
+        .bm-row + .bm-row { border-top: 1px solid rgba(255,255,255,0.08); }
+        .bm-row .flag { font-size: 1.1em; line-height: 1; }
+        .bm-row .name { flex: 1; font-size: 0.85em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .bm-row.tbd .name { color: #666; font-style: italic; }
+        .bm-row.winner { background: rgba(76, 175, 80, 0.14); }
+        .bm-row.winner .name { font-weight: bold; color: #fff; }
+        .bm-row.loser { opacity: 0.55; }
+        .bm-row .score {
+            width: 34px;
+            text-align: center;
+            background: rgba(255,255,255,0.08);
+            color: #fff;
+            border: 1px solid rgba(255,255,255,0.15);
+            border-radius: 4px;
+            padding: 2px 0;
+            font-size: 0.85em;
+        }
+        .bm-row .score:disabled { opacity: 0.4; }
+        .bm-row .pen-mark { font-size: 0.65em; color: #ffd700; width: 14px; text-align: center; }
+        .team-select {
+            flex: 1;
+            min-width: 0;
+            background: rgba(255, 255, 255, 0.08);
+            color: #fff;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 4px;
+            padding: 2px 4px;
+            font-size: 0.82em;
+        }
+        .team-select option { background: #16213e; color: #fff; }
+
+        .bm-pens {
+            display: flex;
+            gap: 6px;
+            justify-content: center;
+            padding: 4px 8px 6px;
+            font-size: 0.7em;
+            color: #aaa;
+            border-top: 1px dashed rgba(255,255,255,0.12);
+        }
+        .bm-pens button {
+            background: rgba(255,255,255,0.08);
+            border: 1px solid rgba(255,255,255,0.18);
+            color: #ddd;
+            border-radius: 4px;
+            padding: 1px 6px;
+            font-size: 0.95em;
+            cursor: pointer;
+        }
+        .bm-pens button.sel { background: #ffd700; color: #000; border-color: #ffd700; font-weight: bold; }
+
+        .bracket-extra { margin-top: 30px; display: flex; flex-wrap: wrap; gap: 20px; }
+        .bracket-extra .bm { width: 280px; }
+
         /* Rules Section */
         .rules-grid {
             display: grid;
@@ -655,6 +806,7 @@
         <div class="tabs">
             <button class="tab active" data-tab="standings">Standings</button>
             <button class="tab" data-tab="matches">Matches</button>
+            <button class="tab" data-tab="bracket">Bracket</button>
             <button class="tab" data-tab="rosters">Rosters</button>
             <button class="tab" data-tab="rules">Rules</button>
         </div>
@@ -694,6 +846,11 @@
             <div id="matches-container"></div>
         </div>
 
+        <div id="bracket" class="tab-content">
+            <p class="bracket-help">Set the Round of 32 teams with the dropdowns, then enter scores as games are played. Winners advance automatically and points update live. Tied knockout games: pick who won on penalties.</p>
+            <div id="bracket-container"></div>
+        </div>
+
         <div id="rosters" class="tab-content">
             <div class="rosters-grid" id="rosters-grid"></div>
         </div>
@@ -727,6 +884,7 @@
                     <ul>
                         <li>Goals in regulation and extra time count</li>
                         <li>Penalty shootout goals do NOT count</li>
+                        <li>Knockout games decided on penalties: the shootout winner gets the Match Win (3 pts); the loser gets nothing</li>
                         <li>Teams advancing via penalties still receive advancement bonuses</li>
                         <li>Official FIFA results will be used for scoring</li>
                     </ul>
@@ -953,8 +1111,71 @@
             { id: 69, date: '2026-06-27', time: '20:00', group: 'L', home: 'Panama', away: 'England', venue: 'MetLife Stadium, East Rutherford', homeScore: null, awayScore: null, completed: false },
             { id: 70, date: '2026-06-27', time: '20:00', group: 'L', home: 'Croatia', away: 'Ghana', venue: 'Lincoln Financial Field, Philadelphia', homeScore: null, awayScore: null, completed: false },
             { id: 71, date: '2026-06-27', time: '22:30', group: 'K', home: 'Colombia', away: 'Portugal', venue: 'Hard Rock Stadium, Miami', homeScore: null, awayScore: null, completed: false },
-            { id: 72, date: '2026-06-27', time: '22:30', group: 'K', home: 'DR Congo', away: 'Uzbekistan', venue: 'Mercedes-Benz Stadium, Atlanta', homeScore: null, awayScore: null, completed: false }
+            { id: 72, date: '2026-06-27', time: '22:30', group: 'K', home: 'DR Congo', away: 'Uzbekistan', venue: 'Mercedes-Benz Stadium, Atlanta', homeScore: null, awayScore: null, completed: false },
+
+            // ==================== KNOCKOUT STAGE ====================
+            // Knockout matches use `stage` instead of `group`. Teams are filled in via the
+            // Bracket tab (R32 via dropdowns, later rounds auto-advance from results).
+            // `feedWin` = where the winner goes; `feedLose` = where the loser goes (SF -> 3rd place).
+            // Dates/times follow the official 2026 round windows; venues are best-effort/editable.
+
+            // Round of 32 (June 28 - July 3). R32 pairings pre-filled where known (ESPN); rest TBD.
+            { id: 73, stage: 'R32', date: '2026-06-28', time: '16:00', home: 'United States', away: 'Bosnia & Herzegovina', homeScore: null, awayScore: null, penWinner: null, completed: false, venue: 'TBD', feedWin: { match: 89, side: 'home' } },
+            { id: 74, stage: 'R32', date: '2026-06-28', time: '20:00', home: 'Belgium', away: 'Senegal', homeScore: null, awayScore: null, penWinner: null, completed: false, venue: 'TBD', feedWin: { match: 89, side: 'away' } },
+            { id: 75, stage: 'R32', date: '2026-06-29', time: '15:00', home: 'France', away: 'Sweden', homeScore: null, awayScore: null, penWinner: null, completed: false, venue: 'TBD', feedWin: { match: 90, side: 'home' } },
+            { id: 76, stage: 'R32', date: '2026-06-29', time: '19:00', home: 'Argentina', away: 'Cape Verde', homeScore: null, awayScore: null, penWinner: null, completed: false, venue: 'TBD', feedWin: { match: 90, side: 'away' } },
+            { id: 77, stage: 'R32', date: '2026-06-30', time: '16:00', home: 'Netherlands', away: 'Morocco', homeScore: null, awayScore: null, penWinner: null, completed: false, venue: 'TBD', feedWin: { match: 91, side: 'home' } },
+            { id: 78, stage: 'R32', date: '2026-06-30', time: '20:00', home: 'Brazil', away: 'Japan', homeScore: null, awayScore: null, penWinner: null, completed: false, venue: 'TBD', feedWin: { match: 91, side: 'away' } },
+            { id: 79, stage: 'R32', date: '2026-07-01', time: '15:00', home: 'Mexico', away: 'Ecuador', homeScore: null, awayScore: null, penWinner: null, completed: false, venue: 'TBD', feedWin: { match: 92, side: 'home' } },
+            { id: 80, stage: 'R32', date: '2026-07-01', time: '19:00', home: null, away: null, homeScore: null, awayScore: null, penWinner: null, completed: false, venue: 'TBD', feedWin: { match: 92, side: 'away' } },
+            { id: 81, stage: 'R32', date: '2026-07-01', time: '22:00', home: null, away: null, homeScore: null, awayScore: null, penWinner: null, completed: false, venue: 'TBD', feedWin: { match: 93, side: 'home' } },
+            { id: 82, stage: 'R32', date: '2026-07-02', time: '16:00', home: null, away: null, homeScore: null, awayScore: null, penWinner: null, completed: false, venue: 'TBD', feedWin: { match: 93, side: 'away' } },
+            { id: 83, stage: 'R32', date: '2026-07-02', time: '20:00', home: null, away: null, homeScore: null, awayScore: null, penWinner: null, completed: false, venue: 'TBD', feedWin: { match: 94, side: 'home' } },
+            { id: 84, stage: 'R32', date: '2026-07-02', time: '22:00', home: null, away: null, homeScore: null, awayScore: null, penWinner: null, completed: false, venue: 'TBD', feedWin: { match: 94, side: 'away' } },
+            { id: 85, stage: 'R32', date: '2026-07-03', time: '15:00', home: null, away: null, homeScore: null, awayScore: null, penWinner: null, completed: false, venue: 'TBD', feedWin: { match: 95, side: 'home' } },
+            { id: 86, stage: 'R32', date: '2026-07-03', time: '17:00', home: null, away: null, homeScore: null, awayScore: null, penWinner: null, completed: false, venue: 'TBD', feedWin: { match: 95, side: 'away' } },
+            { id: 87, stage: 'R32', date: '2026-07-03', time: '20:00', home: null, away: null, homeScore: null, awayScore: null, penWinner: null, completed: false, venue: 'TBD', feedWin: { match: 96, side: 'home' } },
+            { id: 88, stage: 'R32', date: '2026-07-03', time: '22:00', home: null, away: null, homeScore: null, awayScore: null, penWinner: null, completed: false, venue: 'TBD', feedWin: { match: 96, side: 'away' } },
+
+            // Round of 16 (July 4 - July 7)
+            { id: 89, stage: 'R16', date: '2026-07-04', time: '16:00', home: null, away: null, homeScore: null, awayScore: null, penWinner: null, completed: false, venue: 'TBD', feedWin: { match: 97, side: 'home' } },
+            { id: 90, stage: 'R16', date: '2026-07-04', time: '20:00', home: null, away: null, homeScore: null, awayScore: null, penWinner: null, completed: false, venue: 'TBD', feedWin: { match: 97, side: 'away' } },
+            { id: 91, stage: 'R16', date: '2026-07-05', time: '16:00', home: null, away: null, homeScore: null, awayScore: null, penWinner: null, completed: false, venue: 'TBD', feedWin: { match: 98, side: 'home' } },
+            { id: 92, stage: 'R16', date: '2026-07-05', time: '20:00', home: null, away: null, homeScore: null, awayScore: null, penWinner: null, completed: false, venue: 'TBD', feedWin: { match: 98, side: 'away' } },
+            { id: 93, stage: 'R16', date: '2026-07-06', time: '16:00', home: null, away: null, homeScore: null, awayScore: null, penWinner: null, completed: false, venue: 'TBD', feedWin: { match: 99, side: 'home' } },
+            { id: 94, stage: 'R16', date: '2026-07-06', time: '20:00', home: null, away: null, homeScore: null, awayScore: null, penWinner: null, completed: false, venue: 'TBD', feedWin: { match: 99, side: 'away' } },
+            { id: 95, stage: 'R16', date: '2026-07-07', time: '16:00', home: null, away: null, homeScore: null, awayScore: null, penWinner: null, completed: false, venue: 'TBD', feedWin: { match: 100, side: 'home' } },
+            { id: 96, stage: 'R16', date: '2026-07-07', time: '20:00', home: null, away: null, homeScore: null, awayScore: null, penWinner: null, completed: false, venue: 'TBD', feedWin: { match: 100, side: 'away' } },
+
+            // Quarterfinals (July 9 - July 11)
+            { id: 97, stage: 'QF', date: '2026-07-09', time: '16:00', home: null, away: null, homeScore: null, awayScore: null, penWinner: null, completed: false, venue: 'TBD', feedWin: { match: 101, side: 'home' } },
+            { id: 98, stage: 'QF', date: '2026-07-09', time: '20:00', home: null, away: null, homeScore: null, awayScore: null, penWinner: null, completed: false, venue: 'TBD', feedWin: { match: 101, side: 'away' } },
+            { id: 99, stage: 'QF', date: '2026-07-10', time: '16:00', home: null, away: null, homeScore: null, awayScore: null, penWinner: null, completed: false, venue: 'TBD', feedWin: { match: 102, side: 'home' } },
+            { id: 100, stage: 'QF', date: '2026-07-11', time: '16:00', home: null, away: null, homeScore: null, awayScore: null, penWinner: null, completed: false, venue: 'TBD', feedWin: { match: 102, side: 'away' } },
+
+            // Semifinals (July 14 - July 15)
+            { id: 101, stage: 'SF', date: '2026-07-14', time: '20:00', home: null, away: null, homeScore: null, awayScore: null, penWinner: null, completed: false, venue: 'TBD', feedWin: { match: 104, side: 'home' }, feedLose: { match: 103, side: 'home' } },
+            { id: 102, stage: 'SF', date: '2026-07-15', time: '20:00', home: null, away: null, homeScore: null, awayScore: null, penWinner: null, completed: false, venue: 'TBD', feedWin: { match: 104, side: 'away' }, feedLose: { match: 103, side: 'away' } },
+
+            // Third-place playoff (July 18)
+            { id: 103, stage: '3P', date: '2026-07-18', time: '16:00', home: null, away: null, homeScore: null, awayScore: null, penWinner: null, completed: false, venue: 'TBD' },
+
+            // Final (July 19) - MetLife Stadium
+            { id: 104, stage: 'F', date: '2026-07-19', time: '15:00', home: null, away: null, homeScore: null, awayScore: null, penWinner: null, completed: false, venue: 'MetLife Stadium, East Rutherford' }
         ];
+
+        // Knockout round metadata (labels + ordering for the Bracket tab).
+        const KO_ROUNDS = [
+            { key: 'R32', label: 'Round of 32' },
+            { key: 'R16', label: 'Round of 16' },
+            { key: 'QF', label: 'Quarterfinals' },
+            { key: 'SF', label: 'Semifinals' },
+            { key: '3P', label: 'Third-Place Playoff' },
+            { key: 'F', label: 'Final' }
+        ];
+        const KO_LABELS = { R32: 'Round of 32', R16: 'Round of 16', QF: 'Quarterfinals', SF: 'Semifinals', '3P': 'Third Place', F: 'Final' };
+        // All 48 teams, sorted, for the R32 dropdowns.
+        const ALL_TEAMS = Object.values(GROUPS).flat().sort((a, b) => a.localeCompare(b));
 
         // Team advancement tracking
         let teamAdvancements = {};
@@ -983,7 +1204,10 @@
                     awayScore: m.awayScore ?? null,
                     completed: !!m.completed,
                     penalties: m.penalties ?? null,
-                    liveStatus: m.liveStatus ?? null
+                    liveStatus: m.liveStatus ?? null,
+                    penWinner: m.penWinner ?? null,
+                    // Knockout teams are dynamic (set via dropdowns / auto-advance), so persist them.
+                    ...(m.stage ? { home: m.home ?? null, away: m.away ?? null } : {})
                 };
             });
             return { matches: matchesObj, teamAdvancements: teamAdvancements };
@@ -1005,12 +1229,19 @@
                         match.completed = !!saved.completed;
                         match.penalties = saved.penalties ?? null;
                         match.liveStatus = saved.liveStatus ?? null;
+                        if ('penWinner' in saved) match.penWinner = saved.penWinner ?? null;
+                        // Restore dynamic knockout teams (only R32 are user-set; the rest are
+                        // re-derived by propagateBracket() below, but restoring is harmless).
+                        if (match.stage) {
+                            if ('home' in saved) match.home = saved.home ?? null;
+                            if ('away' in saved) match.away = saved.away ?? null;
+                        }
                     }
                 });
             }
-            if (data.teamAdvancements) {
-                teamAdvancements = data.teamAdvancements;
-            }
+            // Advancement is derived from knockout results, not stored toggles.
+            propagateBracket();
+            recomputeAdvancements();
         }
 
         function saveData() {
@@ -1037,10 +1268,16 @@
                     return;
                 }
                 applyState(data);
-                renderStandings();
-                renderMatches(currentFilter);
-                renderRosters();
+                renderAll();
             });
+        }
+
+        // Re-render every view that depends on match/advancement state.
+        function renderAll() {
+            renderStandings();
+            renderMatches(currentFilter);
+            renderRosters();
+            renderBracket();
         }
 
         function showSaveIndicator() {
@@ -1078,10 +1315,15 @@
 
                 if (teamGoals > opponentGoals) {
                     stats.wins++;
-                } else if (teamGoals === opponentGoals) {
-                    stats.draws++;
-                } else {
+                } else if (teamGoals < opponentGoals) {
                     stats.losses++;
+                } else if (match.penWinner) {
+                    // Knockout draw decided on penalties: the shootout winner gets the win,
+                    // the loser gets nothing (shootout goals are not counted).
+                    const penTeam = match.penWinner === 'home' ? match.home : match.away;
+                    if (penTeam === teamName) stats.wins++; else stats.losses++;
+                } else {
+                    stats.draws++;
                 }
 
                 if (opponentGoals === 0) {
@@ -1199,6 +1441,162 @@
             return 0;
         }
 
+        // ==================== KNOCKOUT BRACKET ====================
+
+        // Decide a knockout match. Returns winner/loser team names (or nulls if undecided).
+        // Ties are resolved by penWinner ('home'/'away'); regulation goals decide otherwise.
+        function resultOf(m) {
+            if (!m.completed || m.homeScore == null || m.awayScore == null || !m.home || !m.away) {
+                return { winner: null, loser: null };
+            }
+            if (m.homeScore > m.awayScore) return { winner: m.home, loser: m.away };
+            if (m.awayScore > m.homeScore) return { winner: m.away, loser: m.home };
+            if (m.penWinner === 'home') return { winner: m.home, loser: m.away };
+            if (m.penWinner === 'away') return { winner: m.away, loser: m.home };
+            return { winner: null, loser: null };
+        }
+
+        // Rebuild every derived knockout slot (R16 -> Final/3rd) from completed feeder
+        // results, so edits to earlier rounds cascade. R32 teams are user-set and untouched.
+        function propagateBracket() {
+            const byId = {};
+            MATCHES.forEach(m => { byId[m.id] = m; });
+            const isDerived = m => m.stage && m.stage !== 'R32';
+
+            // 1. Clear all derived matchups.
+            MATCHES.forEach(m => { if (isDerived(m)) { m.home = null; m.away = null; } });
+
+            // 2. Fill from sources in round order so each round is populated before it feeds on.
+            ['R32', 'R16', 'QF', 'SF'].forEach(stage => {
+                MATCHES.filter(m => m.stage === stage).forEach(src => {
+                    const res = resultOf(src);
+                    if (src.feedWin && res.winner) {
+                        const t = byId[src.feedWin.match];
+                        if (t) t[src.feedWin.side] = res.winner;
+                    }
+                    if (src.feedLose && res.loser) {
+                        const t = byId[src.feedLose.match];
+                        if (t) t[src.feedLose.side] = res.loser;
+                    }
+                });
+            });
+
+            // 3. Drop any orphaned result whose matchup is no longer fully determined.
+            MATCHES.forEach(m => {
+                if (isDerived(m) && (!m.home || !m.away)) {
+                    m.homeScore = null;
+                    m.awayScore = null;
+                    m.completed = false;
+                    m.penWinner = null;
+                }
+            });
+        }
+
+        // Derive teamAdvancements purely from the populated bracket (cumulative bonuses).
+        // R32 presence = +5; reaching QF/SF/Final = +10/+15/+20; winning the Final = +15.
+        // (Reaching the Round of 16 carries no bonus, per league rules.)
+        function recomputeAdvancements() {
+            Object.keys(teamAdvancements).forEach(team => {
+                teamAdvancements[team] = {
+                    advancedFromGroups: false,
+                    advancedToQF: false,
+                    advancedToSF: false,
+                    advancedToFinal: false,
+                    wonWorldCup: false,
+                    eliminated: false
+                };
+            });
+            const mark = (team, key) => { if (team && teamAdvancements[team]) teamAdvancements[team][key] = true; };
+
+            MATCHES.forEach(m => {
+                if (!m.stage) return;
+                if (m.stage === 'R32') { mark(m.home, 'advancedFromGroups'); mark(m.away, 'advancedFromGroups'); }
+                if (m.stage === 'QF')  { mark(m.home, 'advancedToQF'); mark(m.away, 'advancedToQF'); }
+                if (m.stage === 'SF')  { mark(m.home, 'advancedToSF'); mark(m.away, 'advancedToSF'); }
+                if (m.stage === 'F')   { mark(m.home, 'advancedToFinal'); mark(m.away, 'advancedToFinal'); }
+            });
+
+            const finalM = MATCHES.find(m => m.id === 104);
+            if (finalM) mark(resultOf(finalM).winner, 'wonWorldCup');
+
+            // Any team that lost a completed knockout match is out.
+            MATCHES.forEach(m => {
+                if (!m.stage) return;
+                const loser = resultOf(m).loser;
+                if (loser && teamAdvancements[loser]) teamAdvancements[loser].eliminated = true;
+            });
+        }
+
+        // Set an R32 team slot from a dropdown, then re-derive the bracket.
+        function setBracketTeam(id, side, team) {
+            const match = MATCHES.find(m => m.id === id);
+            if (!match || match.stage !== 'R32') return;
+            match[side] = team || null;
+            propagateBracket();
+            recomputeAdvancements();
+            saveData();
+            renderAll();
+        }
+
+        // Save a knockout result. Ties require a penalty-winner selection.
+        // Auto-save a knockout score on input change. A level game stays "incomplete"
+        // until a penalty winner is picked (the Pens buttons appear in that case).
+        function updateKnockoutScore(id) {
+            const match = MATCHES.find(m => m.id === id);
+            if (!match || !match.home || !match.away) return;
+
+            const homeInput = document.querySelector(`input[data-ko="${id}"][data-side="home"]`);
+            const awayInput = document.querySelector(`input[data-ko="${id}"][data-side="away"]`);
+            const hs = homeInput && homeInput.value !== '' ? parseInt(homeInput.value) : null;
+            const as = awayInput && awayInput.value !== '' ? parseInt(awayInput.value) : null;
+            match.homeScore = hs;
+            match.awayScore = as;
+
+            if (hs != null && as != null) {
+                if (hs === as) {
+                    match.completed = !!match.penWinner; // needs a shootout winner
+                } else {
+                    match.penWinner = null;
+                    match.completed = true;
+                }
+            } else {
+                match.penWinner = null;
+                match.completed = false;
+            }
+
+            propagateBracket();
+            recomputeAdvancements();
+            saveData();
+            renderAll();
+        }
+
+        // Pick the penalty-shootout winner for a level knockout game.
+        function setPenWinner(id, side) {
+            const match = MATCHES.find(m => m.id === id);
+            if (!match) return;
+            match.penWinner = side;
+            if (match.homeScore != null && match.homeScore === match.awayScore) {
+                match.completed = true;
+            }
+            propagateBracket();
+            recomputeAdvancements();
+            saveData();
+            renderAll();
+        }
+
+        function clearKnockoutMatch(id) {
+            const match = MATCHES.find(m => m.id === id);
+            if (!match) return;
+            match.homeScore = null;
+            match.awayScore = null;
+            match.penWinner = null;
+            match.completed = false;
+            propagateBracket();
+            recomputeAdvancements();
+            saveData();
+            renderAll();
+        }
+
         // ==================== RENDERING ====================
 
         // Today's date (YYYY-MM-DD) in New York time, so the "TODAY" highlight and
@@ -1286,7 +1684,8 @@
             const container = document.getElementById('matches-container');
             const today = nyToday();
 
-            let filteredMatches = [...MATCHES];
+            // Group-stage only; knockout fixtures live in the Bracket tab.
+            let filteredMatches = MATCHES.filter(m => m.group);
 
             switch(filter) {
                 case 'today':
@@ -1370,6 +1769,104 @@
 
             if (filteredMatches.length === 0) {
                 html = '<p style="text-align: center; color: #888; padding: 40px;">No matches found for this filter.</p>';
+            }
+
+            container.innerHTML = html;
+        }
+
+        // Rounds that form the single-elimination tree (3rd place is rendered separately).
+        const TREE_ROUNDS = ['R32', 'R16', 'QF', 'SF', 'F'];
+
+        // Build one team row inside a bracket match box.
+        function bracketRow(match, side, ready) {
+            const team = match[side];
+            const flag = team ? (TEAM_FLAGS[team] || '🏳️') : '🏳️';
+            const res = match.completed ? resultOf(match) : { winner: null, loser: null };
+            let rowClass = team ? '' : 'tbd';
+            if (res.winner === team && team) rowClass = 'winner';
+            else if (res.loser === team && team) rowClass = 'loser';
+
+            const tied = match.homeScore != null && match.homeScore === match.awayScore;
+            const penMark = (tied && match.penWinner === side) ? '<span class="pen-mark">P</span>' : '<span class="pen-mark"></span>';
+
+            const nameHtml = match.stage === 'R32'
+                ? `<select class="team-select" onchange="setBracketTeam(${match.id}, '${side}', this.value)">`
+                    + ['<option value="">— team —</option>']
+                        .concat(ALL_TEAMS.map(t => `<option value="${t}" ${t === team ? 'selected' : ''}>${t}</option>`))
+                        .join('')
+                    + '</select>'
+                : `<span class="name">${team || 'TBD'}</span>`;
+
+            const score = match[side === 'home' ? 'homeScore' : 'awayScore'];
+            return `
+                <div class="bm-row ${rowClass}">
+                    <span class="flag">${flag}</span>
+                    ${nameHtml}
+                    ${penMark}
+                    <input type="number" min="0" max="20" class="score" value="${score ?? ''}"
+                           data-ko="${match.id}" data-side="${side}" placeholder="-"
+                           onchange="updateKnockoutScore(${match.id})" ${ready ? '' : 'disabled'}>
+                </div>`;
+        }
+
+        // Render a single match box (used in the tree and for the 3rd-place playoff).
+        function bracketBox(match, today) {
+            const ready = !!(match.home && match.away);
+            const statusClass = match.completed ? 'completed' : (match.date === today && ready ? 'live' : '');
+
+            // Penalty picker: shown only when both scores are in and level.
+            let pens = '';
+            if (ready && match.homeScore != null && match.homeScore === match.awayScore) {
+                pens = `
+                    <div class="bm-pens">
+                        <span>Pens:</span>
+                        <button class="${match.penWinner === 'home' ? 'sel' : ''}" onclick="setPenWinner(${match.id}, 'home')">${match.home}</button>
+                        <button class="${match.penWinner === 'away' ? 'sel' : ''}" onclick="setPenWinner(${match.id}, 'away')">${match.away}</button>
+                    </div>`;
+            }
+
+            return `
+                <div class="bm ${statusClass}">
+                    ${bracketRow(match, 'home', ready)}
+                    ${bracketRow(match, 'away', ready)}
+                    ${pens}
+                </div>`;
+        }
+
+        function renderBracket() {
+            const container = document.getElementById('bracket-container');
+            if (!container) return;
+            const today = nyToday();
+
+            let html = '';
+
+            // Champion banner.
+            const finalM = MATCHES.find(m => m.id === 104);
+            const champion = finalM ? resultOf(finalM).winner : null;
+            if (champion) {
+                html += `<div class="bracket-champion">🏆 Champion: ${TEAM_FLAGS[champion] || ''} ${champion}</div>`;
+            }
+
+            // The bracket tree.
+            html += '<div class="bracket-scroll"><div class="bracket-tree">';
+            TREE_ROUNDS.forEach((key, roundIdx) => {
+                const matches = MATCHES.filter(m => m.stage === key);
+                const colClass = (roundIdx === 0 ? 'is-first ' : '') + (roundIdx === TREE_ROUNDS.length - 1 ? 'is-last' : '');
+                html += `<div class="round-col ${colClass}">`;
+                html += `<div class="round-title">${KO_LABELS[key]}</div>`;
+                html += '<div class="round-body">';
+                matches.forEach((match, i) => {
+                    const posClass = i % 2 === 0 ? 'top' : 'bottom';
+                    html += `<div class="bm-wrap ${posClass}">${bracketBox(match, today)}</div>`;
+                });
+                html += '</div></div>';
+            });
+            html += '</div></div>';
+
+            // Third-place playoff, rendered on its own.
+            const third = MATCHES.find(m => m.stage === '3P');
+            if (third) {
+                html += `<div class="bracket-extra"><div><div class="round-title" style="text-align:left;">Third-Place Playoff</div>${bracketBox(third, today)}</div></div>`;
             }
 
             container.innerHTML = html;
@@ -1513,9 +2010,14 @@
         } else {
             loadData();          // fallback: per-browser localStorage
         }
+        // Make sure derived bracket/advancement state is consistent even before
+        // any saved data arrives (e.g. first visit, pre-filled R32 teams get +5).
+        propagateBracket();
+        recomputeAdvancements();
         renderStandings();
         renderMatches();
         renderRosters();
+        renderBracket();
 
         // ==================== TEAM SCHEDULE TOOLTIP ====================
         // Hover (or tap on mobile) a team in the standings to see its results
@@ -1667,14 +2169,9 @@
             document.body.appendChild(modal);
         }
 
-        // Make roster teams clickable for advancement
-        document.getElementById('rosters-grid').addEventListener('click', (e) => {
-            const teamEl = e.target.closest('.roster-team');
-            if (teamEl) {
-                const teamName = teamEl.querySelector('span:nth-child(2)').textContent;
-                showAdvancementModal(teamName);
-            }
-        });
+        // Advancement is now auto-derived from knockout results in the Bracket tab,
+        // so roster teams are no longer manually clickable for advancement.
+        // (showAdvancementModal / toggleAdvancement remain defined but unused.)
 
         // ==================== LIVE SCORES API ====================
 
