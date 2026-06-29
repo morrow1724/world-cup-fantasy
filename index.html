@@ -1540,6 +1540,18 @@
                 const loser = resultOf(m).loser;
                 if (loser && teamAdvancements[loser]) teamAdvancements[loser].eliminated = true;
             });
+
+            // Group-stage eliminations: once the Round of 32 field is fully set, the 16
+            // teams absent from the bracket failed to advance from their groups and are out.
+            const r32 = MATCHES.filter(m => m.stage === 'R32');
+            const bracketFull = r32.length > 0 && r32.every(m => m.home && m.away);
+            if (bracketFull) {
+                const inBracket = new Set();
+                r32.forEach(m => { inBracket.add(m.home); inBracket.add(m.away); });
+                Object.keys(teamAdvancements).forEach(team => {
+                    if (!inBracket.has(team)) teamAdvancements[team].eliminated = true;
+                });
+            }
         }
 
         // Set an R32 team slot from a dropdown, then re-derive the bracket.
